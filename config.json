@@ -1,0 +1,11 @@
+{
+  "model_dir": "model",
+  "model_path": "model/yolo_v10_model.weights",
+  "model_url": "https://github.com/THU-MIG/yolov10/releases/download/v1.1/yolov10b.pt",
+  "coco_val_url": "http://images.cocodataset.org/zips/val2014.zip",
+  "coco_annotations_url": "http://images.cocodataset.org/annotations/annotations_trainval2014.zip",
+  "coco_folder": "data/coco2014",
+  "annotation_file_path": "data/coco2014/annotations_trainval2014/annotations/instances_val2014.json",
+  "images_file_path": "data/coco2014/val2014/val2014",
+  "images_used_path": "data/coco2014_reduced"
+}
