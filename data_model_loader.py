@@ -4,6 +4,8 @@ import zipfile
 import json
 import random
 from tqdm import tqdm
+import tensorflow as tf
+import tensorflow_hub as hub
 
 with open('config.json', 'r') as file:
     config = json.load(file)
@@ -28,8 +30,8 @@ class DownloadProgressBar(tqdm):
         self.update(b * bsize - self.n)
 
 
-def load_yolov10_model():
-    os.makedirs(model_dir, exist_ok=True)
+def load_model():
+    """os.makedirs(model_dir, exist_ok=True)
 
     if not os.path.exists(model_path):
         print("YOLO v10 model not found. Downloading...")
@@ -38,7 +40,9 @@ def load_yolov10_model():
             urllib.request.urlretrieve(model_url, model_path, reporthook=bar.update_to)
         print("Download completed.")
     else:
-        print("YOLO v10 model already present locally.")
+        print("YOLO v10 model already present locally.")"""
+    model = hub.load("https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2")
+    return model
 
 
 def load_coco_2014_dataset():
