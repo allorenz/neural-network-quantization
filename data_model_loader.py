@@ -48,7 +48,7 @@ def load_model():
         return model
     
 
-def quantize_model():
+def quantize_models():
     tflite_models_dir = pathlib.Path(model_quantized_path)
     tflite_models_dir.mkdir(exist_ok=True, parents=True)
 
