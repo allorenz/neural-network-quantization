@@ -99,12 +99,12 @@ def load_coco_2014_dataset():
 
     print("COCO 2014 dataset download and extraction complete.")
 
-    print("Get Annotations ..")
-    annotations = extract_annotations(annotation_file_path)
+    #print("Get Annotations ..")
+    #annotations = extract_annotations(annotation_file_path)
     print("Randomly selecting 1500 pictures ..")
     images = select_random_pictures(images_file_path)
     print("Done!")
-    return annotations, images
+    return images
 
 
 def extract_annotations(annotation_file):
@@ -126,6 +126,14 @@ def extract_annotations(annotation_file):
         })
 
     return annotations
+
+
+def get_image_ids():
+    with open(annotation_file_path, 'r') as f:
+        coco_data = json.load(f)
+    image_id_to_filename = {image['file_name']: image["id"] for image in coco_data['images']}
+    return image_id_to_filename
+
 
 
 def select_random_pictures(folder_path, num_pictures=1500):
