@@ -61,7 +61,7 @@ def run_inference(interpreter, input_details, output_details, image):
     return output_data
 
 
-def predict_tflite_model(tflite_model_path, data_path, images, n_images=5):
+def predict(tflite_model_path, data_path, images, n_images=5):
     data_path = pathlib.Path(data_path)
     results = []
 

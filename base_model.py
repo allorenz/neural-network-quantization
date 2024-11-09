@@ -22,33 +22,21 @@ def predict(model, data_path, images, n_images=5):
     data_path = pathlib.Path(data_path)
     results = []
 
-    for img in tqdm(images[:n_images], desc="Loading images"):
+    for img in tqdm(images[:n_images], desc="Inferencing images"):
         # load image
         image_path = data_path/"val2014"/"val2014"/img
         image = Image.open(image_path)
         width, height = image.size
 
-        # convert greyscale to rgb
-        if image.mode == 'L':
-            image = image.convert('RGB')
-
-        # transform to tensor
-        transform = transforms.Compose([
-            transforms.ToTensor()  # Konvertiert das Bild zu einem Tensor [C, H, W] mit Werten zwischen 0 und 1
-        ])
-        
-        image_tensor = transform(image)
-        
-        image_tensor = (image_tensor * 255).byte()  # convert to uint8
-        image_tensor = image_tensor.permute(1, 2, 0)  # [C, H, W] -> [H, W, C]
-        image_tensor = image_tensor.unsqueeze(0)
+        # transform
+        image_tensor = preprocess_image(image)
 
         # inference
         detector_output = model(image_tensor)
               
         # evaluate
         n_detections = int(detector_output["num_detections"].numpy()[0])
-
+        #print(detector_output["detection_boxes"])
         for i in range(n_detections):
             ymin, xmin, ymax, xmax = detector_output["detection_boxes"].numpy()[0][i]
             ymin = ymin * height
@@ -65,3 +53,21 @@ def predict(model, data_path, images, n_images=5):
             results.append(result)
     
     return results
+
+
+def preprocess_image(image):
+    # convert greyscale to rgb
+    if image.mode == 'L':
+        image = image.convert('RGB')
+
+    transform = transforms.Compose([
+        transforms.ToTensor()  # Converts the image to a tensor [C, H, W] with values between 0 and 1
+    ])
+    
+    image_tensor = transform(image)
+    image_tensor = (image_tensor * 255).byte()
+    image_tensor = image_tensor.permute(1, 2, 0)  # [C, H, W] -> [H, W, C]   
+    # Add a batch dimension [1, H, W, C]
+    image_tensor = image_tensor.unsqueeze(0)
+    
+    return image_tensor
