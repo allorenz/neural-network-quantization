@@ -48,6 +48,11 @@ def predict(tflite_model_path, data_path, images, n_images=5):
     data_path = pathlib.Path(data_path)
     results = []
 
+    # load model
+    interpreter, input_details, output_details = load_tflite_model(tflite_model_path)
+    
+    # create name mapping for output object
+    name_map = {value["name"] : output_name for output_name, value in interpreter.get_signature_runner().get_output_details().items()}
 
     for img in tqdm(images[:n_images], desc="Inferencing images"):
         # load and prepare image
@@ -58,8 +63,7 @@ def predict(tflite_model_path, data_path, images, n_images=5):
         # transform image
         image_tensor = preprocess_image(image)
 
-        # load model, resize model input
-        interpreter, input_details, output_details = load_tflite_model(tflite_model_path)
+        # resize model input for image size
         interpreter.resize_tensor_input(input_details[0]['index'], image_tensor.size())
         interpreter.allocate_tensors()
 
@@ -68,15 +72,10 @@ def predict(tflite_model_path, data_path, images, n_images=5):
 
         # inference - results are automatically stored in "output_details"
         interpreter.invoke()
-
-        # create name mapping
-        name_map = {value["name"] : output_name for output_name, value in interpreter.get_signature_runner().get_output_details().items()}
         
         # prepare output object
-        detector_output = {}
-        for output_detail in output_details:
-            detector_output[name_map[output_detail['name']]] = interpreter.get_tensor(output_detail['index'])
-
+        detector_output = {name_map[output_detail['name']]:interpreter.get_tensor(output_detail['index']) for output_detail in output_details}
+        
         # evaluate
         n_detections = int(detector_output["num_detections"][0])
         for i in range(n_detections):
