@@ -3,14 +3,12 @@ import pathlib
 from tqdm import tqdm
 import torchvision.transforms as transforms
 from PIL import Image
-import numpy as np
 import json
 
 
 # load file paths
 with open('config.json', 'r') as file:
     config = json.load(file)
-coco_folder = config['coco_folder']
 annotation_file_path = config['annotation_file_path']
 
 # load image ids
@@ -20,86 +18,81 @@ filename_to_image_id= {image['file_name']: image["id"] for image in coco_data['i
 
 
 def load_tflite_model(tflite_model_path):
-    # Load the TFLite model and allocate tensors.
+    # load tflite model
     interpreter = tf.lite.Interpreter(model_path=tflite_model_path)
-    interpreter.allocate_tensors()
-    
-    # Get input and output tensors.
+    # get input and output tensors of model
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
     
     return interpreter, input_details, output_details
 
-def preprocess_image_tflite(image, input_details): 
+def preprocess_image(image):
+    # convert greyscale to rgb
     if image.mode == 'L':
         image = image.convert('RGB')
-    
-    # Resize the image to the expected size
-    target_shape = input_details[0]['shape'][1:3]  # height, width
-    image = image.resize(target_shape)
-    
-    # Convert to numpy array and scale to [0, 255]
-    image_np = np.array(image, dtype=np.uint8)
-    
-    # Add batch dimension [1, height, width, 3]
-    image_np = np.expand_dims(image_np, axis=0)
-    
-    return image_np
 
-def run_inference(interpreter, input_details, output_details, image):
-    # Set the input tensor
-    interpreter.set_tensor(input_details[0]['index'], image)
+    transform = transforms.Compose([
+        transforms.ToTensor()  # Converts the image to a tensor [C, H, W] with values between 0 and 1
+    ])
     
-    # Run inference
-    interpreter.invoke()
+    image_tensor = transform(image)
+    image_tensor = (image_tensor * 255).byte()
+    image_tensor = image_tensor.permute(1, 2, 0)  # [C, H, W] -> [H, W, C]   
+    # Add a batch dimension [1, H, W, C]
+    image_tensor = image_tensor.unsqueeze(0)
     
-    # Get the output results
-    output_data = {}
-    for output_detail in output_details:
-        output_data[output_detail['name']] = interpreter.get_tensor(output_detail['index'])
-    
-    return output_data
+    return image_tensor
 
 
 def predict(tflite_model_path, data_path, images, n_images=5):
     data_path = pathlib.Path(data_path)
     results = []
 
-    interpreter, input_details, output_details = load_tflite_model(tflite_model_path)
-
 
     for img in tqdm(images[:n_images], desc="Inferencing images"):
-        # load image
+        # load and prepare image
         image_path = data_path/"val2014"/"val2014"/img
         image = Image.open(image_path)
         width, height = image.size
-
+        
         # transform image
-        image_np = preprocess_image_tflite(image, input_details)
+        image_tensor = preprocess_image(image)
 
-        # inference
-        try:
-            output_data = run_inference(interpreter, input_details, output_details, image_np)
-        except:
-            print(img)
-            break 
+        # load model, resize model input
+        interpreter, input_details, output_details = load_tflite_model(tflite_model_path)
+        interpreter.resize_tensor_input(input_details[0]['index'], image_tensor.size())
+        interpreter.allocate_tensors()
 
-        num_detections = int(output_data['StatefulPartitionedCall:5'][0])
+        # pass input image tensor for inference
+        interpreter.set_tensor(input_details[0]['index'], image_tensor)
 
-        results = []
+        # inference - results are automatically stored in "output_details"
+        interpreter.invoke()
 
-        for i in range(num_detections):
-            ymin, xmin, ymax, xmax = output_data['StatefulPartitionedCall:1'][0][i]
+        # create name mapping
+        name_map = {value["name"] : output_name for output_name, value in interpreter.get_signature_runner().get_output_details().items()}
+        
+        # prepare output object
+        detector_output = {}
+        for output_detail in output_details:
+            detector_output[name_map[output_detail['name']]] = interpreter.get_tensor(output_detail['index'])
+
+        # evaluate
+        n_detections = int(detector_output["num_detections"][0])
+        for i in range(n_detections):
+            ymin, xmin, ymax, xmax = detector_output["detection_boxes"][0][i]
             ymin = ymin * height
             ymax = ymax * height
             xmin = xmin * width
             xmax = xmax * width
 
             result = {
-                        "image_id" : filename_to_image_id[img],
-                        "category_id": int(output_data['StatefulPartitionedCall:2'][0][i]),
-                        "bbox": [xmin, ymin, xmax - xmin, ymax - ymin], 
-                        "score": float(output_data['StatefulPartitionedCall:4'][0][i])
+                    "image_id" : int(filename_to_image_id[img]),
+                    "category_id":int(detector_output["detection_classes"][0][i]),
+                    "bbox": [xmin, ymin, xmax - xmin, ymax - ymin], # detector_output["detection_boxes"].numpy()[0][i].tolist(), # needs to be list
+                    "score": float(detector_output["detection_scores"][0][i])
             }
+
             results.append(result)
+    
     return results
