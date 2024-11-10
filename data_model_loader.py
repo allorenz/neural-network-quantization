@@ -46,32 +46,7 @@ def load_model():
         print("OD model already present locally.")
         model = tf.saved_model.load(model_path)
         return model
-    
-
-def quantize_models():
-    tflite_models_dir = pathlib.Path(model_quantized_path)
-    tflite_models_dir.mkdir(exist_ok=True, parents=True)
-
-    quantization_config = [tf.float32, tf.float16, "int8"]
-
-    for config in quantization_config:
-        converter = tf.lite.TFLiteConverter.from_saved_model(model_path)
-
-        if isinstance(config, tf.dtypes.DType):
-            converter.optimizations = [tf.lite.Optimize.DEFAULT]
-            converter.target_spec.supported_types = [config]
-        else:
-            converter.optimizations = [tf.lite.Optimize.DEFAULT]
-
-        tflite_model = converter.convert()
-
-        model_name = config.name if isinstance(config, tf.dtypes.DType) else config
-        tflite_model_file = tflite_models_dir / f"ssd_mobilenet_{model_name}.tflite"
-        tflite_model_file.write_bytes(tflite_model)
-
-        print(tflite_model_file)
-        print(len(tflite_model))
-   
+     
 
 
 def load_coco_2014_dataset():
@@ -99,33 +74,11 @@ def load_coco_2014_dataset():
 
     print("COCO 2014 dataset download and extraction complete.")
 
-    #print("Get Annotations ..")
-    #annotations = extract_annotations(annotation_file_path)
     print("Randomly selecting 1500 pictures ..")
     images = select_random_pictures(images_file_path)
     print("Done!")
     return images
 
-
-def extract_annotations(annotation_file):
-    with open(annotation_file, 'r') as f:
-        coco_data = json.load(f)
-
-    category_map = {category['id']: category['name'] for category in coco_data['categories']}
-
-    image_id_to_filename = {image['id']: image['file_name'] for image in coco_data['images']}
-
-    annotations = {}
-    for ann in coco_data['annotations']:
-        image_id = ann['image_id']
-        file_name = image_id_to_filename[image_id]
-        if file_name not in annotations:
-            annotations[file_name] = []
-        annotations[file_name].append({
-            'category_name': category_map[ann['category_id']]
-        })
-
-    return annotations
 
 
 def get_image_ids():
@@ -133,7 +86,6 @@ def get_image_ids():
         coco_data = json.load(f)
     image_id_to_filename = {image['file_name']: image["id"] for image in coco_data['images']}
     return image_id_to_filename
-
 
 
 def select_random_pictures(folder_path, num_pictures=1500):
