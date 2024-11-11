@@ -4,15 +4,19 @@ from tqdm import tqdm
 import torchvision.transforms as transforms
 from PIL import Image
 import json
+import time
+from pycocotools.coco import COCO
+from pycocotools.cocoeval import COCOeval
 
 
 # load file paths
 with open('config.json', 'r') as file:
     config = json.load(file)
-annotation_file_path = config['annotation_file_path']
+ANNOTATION_FILE_PATH = config['annotation_file_path']
+RESULTS_DIR = 'results/'
 
 # load image ids
-with open(annotation_file_path, 'r') as f:
+with open(ANNOTATION_FILE_PATH, 'r') as f:
         coco_data = json.load(f)
 filename_to_image_id= {image['file_name']: image["id"] for image in coco_data['images']}
 
@@ -45,8 +49,10 @@ def preprocess_image(image):
 
 
 def predict(tflite_model_path, data_path, images, n_images=5):
+
     data_path = pathlib.Path(data_path)
     results = []
+    inference_times = []
 
     # load model
     interpreter, input_details, output_details = load_tflite_model(tflite_model_path)
@@ -71,8 +77,11 @@ def predict(tflite_model_path, data_path, images, n_images=5):
         interpreter.set_tensor(input_details[0]['index'], image_tensor)
 
         # inference - results are automatically stored in "output_details"
+        start = time.time()
         interpreter.invoke()
-        
+        end = time.time()
+        inference_times.append(end - start)
+
         # prepare output object
         detector_output = {name_map[output_detail['name']]:interpreter.get_tensor(output_detail['index']) for output_detail in output_details}
         
@@ -94,4 +103,60 @@ def predict(tflite_model_path, data_path, images, n_images=5):
 
             results.append(result)
     
-    return results
+    return results, inference_times
+
+def store_results(results, results_dir, model_name):
+
+    # create dir
+    results_dir = pathlib.Path(results_dir)
+    results_dir.mkdir(exist_ok=True, parents=True)
+    results_file = results_dir/f"{model_name}_results.json"
+
+    # store results
+    with open(results_file, 'w') as json_file:
+        json.dump(results, json_file, indent=4)
+
+def evaluate_predictions(model_name, results_dir=RESULTS_DIR):
+    annType = 'bbox'
+    results_file_path = results_dir + model_name + "_results.json"
+
+    #initialize COCO ground truth api
+    cocoGt=COCO(ANNOTATION_FILE_PATH)
+
+    #initialize COCO detections api
+    cocoDt=cocoGt.loadRes(results_file_path)
+
+    # prepare ids
+    imgIds=sorted(cocoGt.getImgIds())
+
+    # evaluate
+    cocoEval = COCOeval(cocoGt, cocoDt, annType)
+    cocoEval.params.imgIds = imgIds
+    cocoEval.evaluate()
+    cocoEval.accumulate()
+    cocoEval.summarize()
+
+    # average precision scores
+    #ap_scores = cocoEval.stats
+    metrics = generate_metrics_dict(cocoEval)
+
+    return metrics
+
+
+def generate_metrics_dict(cocoEval):
+    keys = [
+        "AP_IoU_0.50:0.95_all_maxDets_100",
+        "AP_IoU_0.50_all_maxDets_100",
+        "AP_IoU_0.75_all_maxDets_100",
+        "AP_IoU_0.50:0.95_small_maxDets_100",
+        "AP_IoU_0.50:0.95_medium_maxDets_100",
+        "AP_IoU_0.50:0.95_large_maxDets_100",
+        "AR_IoU_0.50:0.95_all_maxDets_1",
+        "AR_IoU_0.50:0.95_all_maxDets_10",
+        "AR_IoU_0.50:0.95_all_maxDets_100",
+        "AR_IoU_0.50:0.95_small_maxDets_100",
+        "AR_IoU_0.50:0.95_medium_maxDets_100",
+        "AR_IoU_0.50:0.95_large_maxDets_100"
+    ]
+    metrics = {key: cocoEval.stats[i] for i, key in enumerate(keys)}
+    return metrics

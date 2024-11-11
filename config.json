@@ -8,5 +8,7 @@
     "coco_folder": "data/coco2014",
     "annotation_file_path": "data/coco2014/annotations_trainval2014/annotations/instances_val2014.json",
     "images_file_path": "data/coco2014/val2014/val2014",
-    "images_used_path": "data/coco2014_reduced"
+    "images_used_path": "data/coco2014_reduced",
+    "results_dir" :"results/",
+    "output_dir": "output/"
   }

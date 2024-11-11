@@ -5,12 +5,12 @@ import json
 
 with open('config.json', 'r') as file:
     config = json.load(file)
-model_quantized_path = config["model_quantized_path"]
+MODEL_PATH_QUANTIZED = config["model_quantized_path"]
 model_path = config['model_path']
 
 
-def quantize_models():
-    tflite_models_dir = pathlib.Path(model_quantized_path)
+def quantize_models(model_path):
+    tflite_models_dir = pathlib.Path(MODEL_PATH_QUANTIZED)
     tflite_models_dir.mkdir(exist_ok=True, parents=True)
 
     quantization_config = [tf.float32, tf.float16, "int8"]
