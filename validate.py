@@ -1,10 +1,10 @@
 import tensorflow as tf
 from PIL import Image
 import torchvision.transforms as transforms
-
+import time 
 
 # global
-tflite_model_path = "model/ssd_mobilenet_quantized/ssd_mobilenet_float32.tflite"
+tflite_model_path = "model/ssd_mobilenet_quantized/ssd_mobilenet_float16.tflite"
 image_path = r"data\coco2014\val2014\val2014\COCO_val2014_000000322029.jpg"
 
 
@@ -47,7 +47,11 @@ interpreter.allocate_tensors()
 interpreter.set_tensor(input_details[0]['index'], image_tensor)
 
 # inference - results are automatically stored in "output_details"
+start = time.time()
 interpreter.invoke()
+end = time.time()
+
+print(end - start)
 
 # create name mapping
 # interpreter.get_signature_runner().get_output_details()
@@ -76,4 +80,4 @@ for i in range(n_detections):
             "score": float(detector_output["detection_scores"][0][i])
     }
     results.append(result)
-print(results)
+#print(results)

@@ -1,11 +1,9 @@
-from data_model_loader import *
+import json
 from PIL import Image
 import torchvision.transforms as transforms
 import pathlib
 from tqdm import tqdm
 import time
-from pycocotools.coco import COCO
-from pycocotools.cocoeval import COCOeval
 
 
 # load file paths
@@ -22,14 +20,14 @@ with open(ANNOTATION_FILE_PATH, 'r') as f:
 filename_to_image_id= {image['file_name']: image["id"] for image in coco_data['images']}
 
 
-def predict(model, images, n_images=5, data_path=COCO_FOLDER):
+def predict(model, image_names, n_images=None, data_path=COCO_FOLDER):
     data_path = pathlib.Path(data_path)
     results = []
     inference_times = []
 
-    for img in tqdm(images[:n_images], desc="Inferencing images"):
+    for image_name in tqdm(image_names[:n_images], desc="Inferencing images"):
         # load image
-        image_path = data_path/"val2014"/"val2014"/img
+        image_path = data_path/"val2014"/"val2014"/image_name
         image = Image.open(image_path)
         width, height = image.size
 
@@ -53,7 +51,7 @@ def predict(model, images, n_images=5, data_path=COCO_FOLDER):
             xmax = xmax * width
 
             result = {
-                    "image_id" : int(filename_to_image_id[img]),
+                    "image_id" : int(filename_to_image_id[image_name]),
                     "category_id":int(detector_output["detection_classes"].numpy()[0][i]),
                     "bbox": [xmin, ymin, xmax - xmin, ymax - ymin], # detector_output["detection_boxes"].numpy()[0][i].tolist(), # needs to be list
                     "score": float(detector_output["detection_scores"].numpy()[0][i])
@@ -88,47 +86,3 @@ def store_results(results, results_dir):
     # store results
     with open(results_file, 'w') as json_file:
         json.dump(results, json_file, indent=4)
-
-def evaluate_predictions(results_dir=RESULTS_DIR, model_name=MODEL_NAME):
-    annType = 'bbox'
-    results_file_path = results_dir + model_name + "_results.json"
-
-    #initialize COCO ground truth api
-    cocoGt=COCO(ANNOTATION_FILE_PATH)
-
-    #initialize COCO detections api
-    cocoDt=cocoGt.loadRes(results_file_path)
-
-    # prepare ids
-    imgIds=sorted(cocoGt.getImgIds())
-
-    # evaluate
-    cocoEval = COCOeval(cocoGt, cocoDt, annType)
-    cocoEval.params.imgIds = imgIds
-    cocoEval.evaluate()
-    cocoEval.accumulate()
-    cocoEval.summarize()
-
-    # average precision scores
-    #ap_scores = cocoEval.stats
-    metrics = generate_metrics_dict(cocoEval)
-
-    return metrics
-
-def generate_metrics_dict(cocoEval):
-    keys = [
-        "AP_IoU_0.50:0.95_all_maxDets_100",
-        "AP_IoU_0.50_all_maxDets_100",
-        "AP_IoU_0.75_all_maxDets_100",
-        "AP_IoU_0.50:0.95_small_maxDets_100",
-        "AP_IoU_0.50:0.95_medium_maxDets_100",
-        "AP_IoU_0.50:0.95_large_maxDets_100",
-        "AR_IoU_0.50:0.95_all_maxDets_1",
-        "AR_IoU_0.50:0.95_all_maxDets_10",
-        "AR_IoU_0.50:0.95_all_maxDets_100",
-        "AR_IoU_0.50:0.95_small_maxDets_100",
-        "AR_IoU_0.50:0.95_medium_maxDets_100",
-        "AR_IoU_0.50:0.95_large_maxDets_100"
-    ]
-    metrics = {key: cocoEval.stats[i] for i, key in enumerate(keys)}
-    return metrics
