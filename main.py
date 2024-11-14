@@ -3,7 +3,7 @@ import tensorflow as tf
 import base_model
 import tflite_model
 import pathlib
-from evaluate import evaluate_predictions , get_memory_footprint
+from evaluate import evaluate_predictions, get_memory_footprint, create_plots
 from data_model_loader import load_model, load_coco_2014_dataset
 from quantization import quantize_models
 
@@ -73,13 +73,14 @@ def main():
                     "metrics" : metrics
             }
 
-
     output_dir = pathlib.Path("output/")
     output_dir.mkdir(exist_ok=True, parents=True)
     output_file = output_dir/"output.json"
 
     with open(output_file, 'w') as json_file:
             json.dump(output, json_file, indent=4)
+
+    create_plots()
 
 
 if __name__ == '__main__':

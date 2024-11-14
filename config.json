@@ -10,5 +10,6 @@
     "images_file_path": "data/coco2014/val2014/val2014",
     "images_used_path": "data/coco2014_reduced",
     "results_dir" :"results/",
-    "output_dir": "output/"
+    "output_dir": "output/",
+    "output_file_path": "output/output.json"
   }
