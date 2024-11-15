@@ -1,0 +1,12 @@
+tqdm
+tensorflow==2.16.2
+tf-slim
+tensorflow-hub
+tensorflow-cpu==2.16.2
+PIL
+torchvision
+pathlib
+pandas
+numpy
+pycocotools
+matplotlib
