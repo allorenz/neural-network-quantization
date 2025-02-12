@@ -37,7 +37,7 @@ def load_model():
 
     if not os.path.exists(model_path):
         print("OD model not found. Downloading...")
-        os.makedirs('data', exist_ok=True)
+        os.makedirs('../data', exist_ok=True)
         model = hub.load(model_url)
         tf.saved_model.save(model, model_path)
         print("Download completed.")

@@ -11,7 +11,7 @@ with open('config.json', 'r') as file:
     config = json.load(file)
 COCO_FOLDER = config['coco_folder']
 ANNOTATION_FILE_PATH = config['annotation_file_path']
-RESULTS_DIR = 'results/'
+RESULTS_DIR = '../results/'
 MODEL_NAME = "ssd_mobilenet"
 
 # load image ids

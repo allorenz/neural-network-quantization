@@ -1,5 +1,5 @@
-/model
-/data
+/object_detection_model/model
+/object_detection_model/data
 .idea
 /.DS_Store
 

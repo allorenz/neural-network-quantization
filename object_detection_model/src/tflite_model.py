@@ -11,7 +11,7 @@ import time
 with open('config.json', 'r') as file:
     config = json.load(file)
 ANNOTATION_FILE_PATH = config['annotation_file_path']
-RESULTS_DIR = 'results/'
+RESULTS_DIR = '../results/'
 COCO_FOLDER = config['coco_folder']
 
 # load image ids

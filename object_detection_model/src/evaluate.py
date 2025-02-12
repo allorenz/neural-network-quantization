@@ -14,7 +14,7 @@ with open('config.json', 'r') as file:
 
 COCO_FOLDER = config['coco_folder']
 ANNOTATION_FILE_PATH = config['annotation_file_path']
-RESULTS_DIR = 'results/'
+RESULTS_DIR = '../results/'
 MODEL_NAME = "ssd_mobilenet"
 SSD_MOBILENET_MODEL_DIR = config['model_dir']
 MODEL_QUANTIZED_DIR = config["model_quantized_path"]
@@ -139,7 +139,7 @@ def create_plots():
     plt.ylabel('Value')
     plt.legend(title="Metric", loc="upper right", fontsize=8.8, handlelength=1)
     plt.tight_layout()
-    plt.savefig('output/average_precision_plot.png', format='png', dpi=300)
+    plt.savefig('../output/average_precision_plot.png', format='png', dpi=300)
     plt.show()
 
     # AR
@@ -151,5 +151,5 @@ def create_plots():
     plt.ylabel('Value')
     plt.legend(title="Metric", loc="upper right", fontsize=8.8, handlelength=1)
     plt.tight_layout()
-    plt.savefig('output/average_recall_plot.png', format='png', dpi=300)
+    plt.savefig('../output/average_recall_plot.png', format='png', dpi=300)
     plt.show()

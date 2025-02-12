@@ -73,7 +73,7 @@ def main():
                     "metrics" : metrics
             }
 
-    output_dir = pathlib.Path("output/")
+    output_dir = pathlib.Path("../output/")
     output_dir.mkdir(exist_ok=True, parents=True)
     output_file = output_dir/"output.json"
 

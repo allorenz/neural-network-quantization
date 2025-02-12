@@ -1,0 +1,74 @@
+{
+    "ssd_mobilenet": {
+        "avg_inference_time": 0.04427209138870239,
+        "memory_footprint": 75.12082386016846,
+        "metrics": {
+            "AP_IoU_0.50:0.95_all_maxDets_100": 0.29555485600240977,
+            "AP_IoU_0.50_all_maxDets_100": 0.46630381872696114,
+            "AP_IoU_0.75_all_maxDets_100": 0.32993497596628724,
+            "AP_IoU_0.50:0.95_small_maxDets_100": 0.03574963389163781,
+            "AP_IoU_0.50:0.95_medium_maxDets_100": 0.3226021522907648,
+            "AP_IoU_0.50:0.95_large_maxDets_100": 0.6223693680018105,
+            "AR_IoU_0.50:0.95_all_maxDets_1": 0.28284423051271734,
+            "AR_IoU_0.50:0.95_all_maxDets_10": 0.3963354873709025,
+            "AR_IoU_0.50:0.95_all_maxDets_100": 0.4064890016915713,
+            "AR_IoU_0.50:0.95_small_maxDets_100": 0.06597322624650728,
+            "AR_IoU_0.50:0.95_medium_maxDets_100": 0.4544161172161172,
+            "AR_IoU_0.50:0.95_large_maxDets_100": 0.74249876966082
+        }
+    },
+    "ssd_mobilenet_float32": {
+        "avg_inference_time": 0.12352176189422608,
+        "memory_footprint": 23.72003936767578,
+        "metrics": {
+            "AP_IoU_0.50:0.95_all_maxDets_100": 0.29555485600240977,
+            "AP_IoU_0.50_all_maxDets_100": 0.46630381872696114,
+            "AP_IoU_0.75_all_maxDets_100": 0.32993497596628724,
+            "AP_IoU_0.50:0.95_small_maxDets_100": 0.03574963389163781,
+            "AP_IoU_0.50:0.95_medium_maxDets_100": 0.3226021522907648,
+            "AP_IoU_0.50:0.95_large_maxDets_100": 0.6223693680018105,
+            "AR_IoU_0.50:0.95_all_maxDets_1": 0.28284423051271734,
+            "AR_IoU_0.50:0.95_all_maxDets_10": 0.3963354873709025,
+            "AR_IoU_0.50:0.95_all_maxDets_100": 0.4064890016915713,
+            "AR_IoU_0.50:0.95_small_maxDets_100": 0.06597322624650728,
+            "AR_IoU_0.50:0.95_medium_maxDets_100": 0.4544161172161172,
+            "AR_IoU_0.50:0.95_large_maxDets_100": 0.74249876966082
+        }
+    },
+    "ssd_mobilenet_float16": {
+        "avg_inference_time": 0.12137800693511963,
+        "memory_footprint": 12.166816711425781,
+        "metrics": {
+            "AP_IoU_0.50:0.95_all_maxDets_100": 0.29530244496800984,
+            "AP_IoU_0.50_all_maxDets_100": 0.4660754506759066,
+            "AP_IoU_0.75_all_maxDets_100": 0.3298710889560557,
+            "AP_IoU_0.50:0.95_small_maxDets_100": 0.03561169585002831,
+            "AP_IoU_0.50:0.95_medium_maxDets_100": 0.32194720978497,
+            "AP_IoU_0.50:0.95_large_maxDets_100": 0.6220263758694509,
+            "AR_IoU_0.50:0.95_all_maxDets_1": 0.2826489180127173,
+            "AR_IoU_0.50:0.95_all_maxDets_10": 0.3960212478821433,
+            "AR_IoU_0.50:0.95_all_maxDets_100": 0.4061565229032012,
+            "AR_IoU_0.50:0.95_small_maxDets_100": 0.06571632506962947,
+            "AR_IoU_0.50:0.95_medium_maxDets_100": 0.4543941391941391,
+            "AR_IoU_0.50:0.95_large_maxDets_100": 0.7420922655957793
+        }
+    },
+    "ssd_mobilenet_int8": {
+        "avg_inference_time": 0.17044721126556397,
+        "memory_footprint": 6.706703186035156,
+        "metrics": {
+            "AP_IoU_0.50:0.95_all_maxDets_100": 0.09369468120596142,
+            "AP_IoU_0.50_all_maxDets_100": 0.1537926210526747,
+            "AP_IoU_0.75_all_maxDets_100": 0.10753346156095898,
+            "AP_IoU_0.50:0.95_small_maxDets_100": 0.019710930367938983,
+            "AP_IoU_0.50:0.95_medium_maxDets_100": 0.11418057204109715,
+            "AP_IoU_0.50:0.95_large_maxDets_100": 0.23350302920063543,
+            "AR_IoU_0.50:0.95_all_maxDets_1": 0.10862418553849278,
+            "AR_IoU_0.50:0.95_all_maxDets_10": 0.15709221288983188,
+            "AR_IoU_0.50:0.95_all_maxDets_100": 0.16398285001010898,
+            "AR_IoU_0.50:0.95_small_maxDets_100": 0.035928722463685746,
+            "AR_IoU_0.50:0.95_medium_maxDets_100": 0.19196513682396033,
+            "AR_IoU_0.50:0.95_large_maxDets_100": 0.3505940077560582
+        }
+    }
+}

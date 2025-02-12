@@ -10,3 +10,7 @@ pandas
 numpy
 pycocotools
 matplotlib
+torch
+transformers
+auto-gptq
+datasets
