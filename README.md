@@ -24,7 +24,8 @@ The float32 model has the largest memory footprint (23.72 MB) and the fastest in
 
 #### Average Precision & Average Recall
 
-![avg precision plot](object_detection_model\output\average_precision_plot.png)
+![avg precision plot](object_detection_model/output/average_precision_plot.png)
 
-![avg precision plot](object_detection_model\output\average_recall_plot.png)
+![avg precision plot](object_detection_model/output/average_recall_plot.png)
 
+The plot demonstrates that precision remains consistent between the float32 and float16 models, while the int8 model experiences a significant decline in performance. Across all image sizes, the int8 model shows consistently unsatisfactory results, indicating a noticeable loss in precision.
